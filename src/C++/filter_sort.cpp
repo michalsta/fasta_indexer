@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <cassert>
 #include <string>
 #include <iostream>
@@ -8,7 +7,6 @@
 #include "aainfo.cpp"
 
 
-using namespace std;
 
 
 double mass(uint32_t formula[])
@@ -24,15 +22,18 @@ double mass(uint32_t formula[])
 
 int main(int argc, char** argv)
 {
-    vector<pair<double, string>> results;
+    std::vector<std::pair<double, std::string>> results;
 
     assert(argc==2);
 
-    string infile(argv[1]);
-    string idxfile = infile + ".sorted";
+    std::string infile(argv[1]);
+    std::string idxfile = infile + ".sorted";
 
-    ifstream in(infile);
+    std::ios_base::sync_with_stdio(false);
 
+    std::ifstream in;
+    in.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    in.open(infile);
 
     char c;
 
@@ -43,20 +44,20 @@ int main(int argc, char** argv)
     
     uint32_t formula[5];
 
-    string fasta;
-    string tmp;
+    std::string fasta;
+    std::string tmp;
 
     while(not in.eof())
     {
         memset(formula, 0, sizeof(uint32_t)*5);
         correct = true;
         fasta = "";
-        getline(in, fasta);
+        std::getline(in, fasta);
         fasta += '\n';
         while(not in.eof() and in.peek() != '>')
         {
             tmp = "";
-            getline(in, tmp);
+            std::getline(in, tmp);
             fasta += tmp;
             fasta += '\n';
             for(size_t ii = 0; ii<tmp.size(); ii++)
@@ -117,13 +118,16 @@ int main(int argc, char** argv)
 */
     sort(results.begin(), results.end());
 
-    FILE* index = fopen(idxfile.c_str(), "w");
+
+    std::ofstream index;
+    index.exceptions(std::ofstream::failbit | std::ofstream::badbit);
+    index.open(idxfile, std::ios::out | std::ios::trunc);
 
     for(int ii=0; ii<results.size(); ii++)
     {
-        fwrite_unlocked(results[ii].second.c_str(), results[ii].second.size(), 1, index);
+        index << results[ii].second;
     }
 
-    fclose(index);
+    index.close();
 }
 

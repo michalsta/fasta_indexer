@@ -1,13 +1,13 @@
-#include <stdio.h>
 #include <cassert>
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <algorithm>
+#include <cerrno>
 #include "aainfo.cpp"
 
 
-using namespace std;
 
 
 double mass(uint32_t formula[])
@@ -21,18 +21,26 @@ double mass(uint32_t formula[])
     32.064887818622296 * formula[4];
 }
 
+void handle_sys_error(bool errored)
+{
+    if(errored)
+        throw std::system_error(errno, std::generic_category());
+}
+
+
 int main(int argc, char** argv)
 {
-    vector<pair<double, uint64_t>> results;
+    std::vector<std::pair<double, uint64_t>> results;
 
     assert(argc==2);
 
-    string infile(argv[1]);
-    string idxfile = infile + ".idx";
+    std::string infile(argv[1]);
+    std::string idxfile = infile + ".idx";
 
-    FILE* fasta = fopen(infile.c_str(), "r");
+    std::ios_base::sync_with_stdio(false);
 
-
+    std::ifstream fasta(infile);
+    fasta.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
     char c;
 
@@ -46,7 +54,7 @@ int main(int argc, char** argv)
 
     while(true)
     {
-        c = getc_unlocked(fasta);
+        fasta >> c;
         
         if(c == '\n')
             descr = false;
@@ -56,7 +64,7 @@ int main(int argc, char** argv)
             if(correct and seq_start >= 0 and mass(formula) > 0.0)
             {
                 //printf("C%d H%d N%d O%d S%d %f\n", formula[0], formula[1], formula[2], formula[3], formula[4], mass(formula));
-                results.push_back(make_pair(mass(formula), seq_start));
+                results.push_back(std::make_pair(mass(formula), seq_start));
                 //std::cout << mass(formula) << " " << file_pos << '\n';
             }
             correct = true;
@@ -87,18 +95,21 @@ int main(int argc, char** argv)
 //        if(file_pos % 100000000 == 0)
 //            cerr << file_pos << endl;
     }
-    fclose(fasta);
+
+    fasta.close();
 
     sort(results.begin(), results.end());
 
-    FILE* index = fopen(idxfile.c_str(), "w");
+    std::ofstream index;
+    index.exceptions(std::ofstream::failbit | std::ofstream::badbit);
+    index.open(idxfile, std::ios::in | std::ios::binary | std::ios::trunc);
 
     for(int ii=0; ii<results.size(); ii++)
     {
-        fwrite_unlocked(&results[ii].first, sizeof(double), 1, index);
-        fwrite_unlocked(&results[ii].second, sizeof(uint64_t), 1, index);
+        index.write(reinterpret_cast<char*>(&results[ii].first),  sizeof(double));
+        index.write(reinterpret_cast<char*>(&results[ii].second), sizeof(uint64_t));
     }
 
-    fclose(index);
+    index.close();
 }
 
