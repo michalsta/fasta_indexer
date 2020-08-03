@@ -121,7 +121,7 @@ int main(int argc, char** argv)
 {
     try
     {
-        real_main(argc, argv);
+        return real_main(argc, argv);
     }
     catch(const std::system_error& e)
     {
