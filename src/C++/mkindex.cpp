@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include <cerrno>
+#include <exception>
 #include "aainfo.cpp"
 
 
@@ -28,7 +29,7 @@ void handle_sys_error(bool errored)
 }
 
 
-int main(int argc, char** argv)
+int real_main(int argc, char** argv)
 {
     std::vector<std::pair<double, uint64_t>> results;
 
@@ -111,5 +112,20 @@ int main(int argc, char** argv)
     }
 
     index.close();
+
+    return 0;
 }
 
+
+int main(int argc, char** argv)
+{
+    try
+    {
+        real_main(argc, argv);
+    }
+    catch(const std::system_error& e)
+    {
+        perror(nullptr);
+        throw;
+    }
+}

@@ -1,9 +1,11 @@
 #include <cassert>
+#include <exception>
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <algorithm>
+#include <cerrno>
 #include "aainfo.cpp"
 
 
@@ -20,7 +22,7 @@ double mass(uint32_t formula[])
     32.064887818622296 * formula[4];
 }
 
-int main(int argc, char** argv)
+int real_main(int argc, char** argv)
 {
     std::vector<std::pair<double, std::string>> results;
 
@@ -129,5 +131,20 @@ int main(int argc, char** argv)
     }
 
     index.close();
+
+    return 0;
+}
+
+
+int main(int argc, char** argv)
+{
+    try
+    {
+        return real_main(argc, argv);
+    }
+    catch (const std::system_error& e) {
+        perror(nullptr);
+        throw;
+    }
 }
 
