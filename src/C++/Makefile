@@ -1,7 +1,7 @@
 all: build
 build:
-	g++ mkindex.cpp -O3 -o mkindex
-	g++ filter_sort.cpp -O3 -o filter_sort
+	g++ mkindex.cpp -O3 -g -o mkindex
+	g++ filter_sort.cpp -O3 -g -o filter_sort
 preprocess: build
 	ln -s /home/shared/uniprot/uniprot_trembl.fasta .
 	./filter_sort uniprot_trembl.fasta
