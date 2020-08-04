@@ -49,6 +49,39 @@ int real_main(int argc, char** argv)
     std::string fasta;
     std::string tmp;
 
+    assert(in.peek() == '>');
+
+    bool first = false;
+
+    while(std::getline(in, tmp))
+    {
+        if(tmp[0] == '>')
+        {
+            if(!first && correct)
+                results.push_back(make_pair(mass(formula), fasta));
+
+            memset(formula, 0, sizeof(uint32_t)*5);
+            fasta = tmp;
+            fasta += '\n';
+            correct = true;
+            first = false;
+        }
+        else
+        {
+            fasta += tmp;
+            fasta += '\n';
+            for(size_t ii = 0; ii<tmp.size(); ii++)
+            {
+                uint32_t* cformula = formulas[tmp[ii]];
+                if(cformula == nullptr)
+                    correct = false;
+                else
+                    for(int ii = 0; ii<5; ii++)
+                        formula[ii] += cformula[ii];
+            }
+        }
+    }
+    /*
     while(not in.eof())
     {
         memset(formula, 0, sizeof(uint32_t)*5);
@@ -75,7 +108,7 @@ int real_main(int argc, char** argv)
 
         if(correct)
             results.push_back(make_pair(mass(formula), fasta));
-    }
+    }*/
      /*   
         if(c == '\n')
             descr = false;
