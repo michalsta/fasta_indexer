@@ -18,7 +18,7 @@ std::ofstream open_outf(const std::string& filename, std::ios_base::openmode add
 
 int real_main(int argc, char** argv)
 {
-    std::vector<Protein> proteins;
+    std::vector<std::pair<double, uint64_t> > locations;
 
     assert(argc==2);
 
@@ -31,29 +31,22 @@ int real_main(int argc, char** argv)
     FASTA_Stream fasta(infile);
 
     while(fasta.next_valid())
-        proteins.emplace_back(std::move(fasta.get()));
+        locations.push_back(std::make_pair<double, uint64_t>(fasta.get().mass(), static_cast<uint64_t>(fasta.offset())));
 
-    std::sort(proteins.begin(),
-              proteins.end(),
-              [](Protein& a, Protein& b) { return a.mass() < b.mass(); }
+    std::sort(locations.begin(),
+              locations.end(),
+              [](auto& a, auto& b) { return a.first < b.first; }
              );
 
-    std::ofstream sorted_fasta = open_outf(sorted_filename);
     std::ofstream index = open_outf(index_filename, std::ofstream::binary);
 
-    uint64_t offset = 0;
-
-    for(Protein& protein : proteins)
+    for(auto [mass, offset] : locations)
     {
-        std::string fasta = protein.fasta();
-        sorted_fasta << fasta;
-        double mass = protein.mass();
+        static_assert(std::is_same<decltype(offset), uint64_t>::value);
         index.write(reinterpret_cast<char*>(&mass), sizeof(double));
         index.write(reinterpret_cast<char*>(&offset), sizeof(uint64_t));
-        offset += fasta.size();
     }
 
-    sorted_fasta.close();
     index.close();
 
     return 0;

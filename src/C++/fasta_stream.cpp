@@ -20,6 +20,7 @@ class Protein
 class FASTA_Stream
 {
     std::ifstream file;
+    std::streampos _offset;
     Protein p;
 
  public:
@@ -27,6 +28,7 @@ class FASTA_Stream
     bool next();
     bool next_valid();
     Protein& get() { return p; };
+    std::streampos offset() const { return _offset; };
 };
 
 FASTA_Stream::FASTA_Stream(const std::string& filename)
@@ -43,6 +45,7 @@ bool FASTA_Stream::next()
     if(file.eof())
         return false;
 
+    _offset = file.tellg();
 
     std::string name, contents;
 
@@ -67,7 +70,7 @@ bool FASTA_Stream::next()
 
 bool Protein::is_valid() const
 {
-    for(const char& c : contents)
+    for(const unsigned char& c : contents)
         if(c != '\n' and formulas[c] == nullptr)
             return false;
     return true;
@@ -90,7 +93,7 @@ double Protein::mass()
 
     _mass = 0.0;
 
-    for(const char& c : contents)
+    for(const unsigned char& c : contents)
         _mass += masses[c];
 
     return _mass;

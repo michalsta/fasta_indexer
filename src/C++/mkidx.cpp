@@ -53,9 +53,6 @@ int real_main(int argc, char** argv)
         offset += fasta.size();
     }
 
-    sorted_fasta.close();
-    index.close();
-
     return 0;
 }
 
