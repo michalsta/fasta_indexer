@@ -6,17 +6,13 @@ from tqdm import tqdm
 from collections import Counter
 import matplotlib.pyplot as plt
 
-#uniprot_fh = open("uniprot_trembl.fasta", "r")
 index_fh = open("uniprot_trembl.fasta.idx", "rb")
-#uniprot = mmap.mmap(uniprot_fh.fileno(), 0, mmap.MAP_PRIVATE, mmap.PROT_READ)
-index = mmap.mmap(index_fh.fileno(), 0, mmap.MAP_PRIVATE, mmap.PROT_READ)
+index = mmap.mmap(index_fh.fileno(), 0, access = mmap.ACCESS_READ)
 
 no_entries = len(index)//16
-#print(no_entries)
 
 def parse(i):
     return struct.unpack("dQ", i)[0]
-
 
 vals = Counter()
 
@@ -41,6 +37,3 @@ Y = [vals[x] for x in range(mv)]
 
 plt.plot(X, Y)
 plt.show()
-
-
-

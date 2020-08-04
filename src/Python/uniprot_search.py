@@ -5,8 +5,7 @@ import bisect
 
 uniprot_fh = open("uniprot_trembl.fasta.sorted", "r")
 index_fh = open("uniprot_trembl.fasta.sorted.idx", "rb")
-#uniprot = mmap.mmap(uniprot_fh.fileno(), 0, mmap.MAP_PRIVATE, mmap.PROT_READ)
-index = mmap.mmap(index_fh.fileno(), 0, mmap.MAP_PRIVATE, mmap.PROT_READ)
+index = mmap.mmap(index_fh.fileno(), 0, access = mmap.ACCESS_READ)
 
 no_entries = len(index)//16
 #print(no_entries)
@@ -56,11 +55,9 @@ if __name__ == "__main__":
     tol = float(sys.argv[2])
     mass_start = mid - tol
     mass_end = mid + tol
-    for x in search(mass_start, mass_end):
-        hdr, seq = x
-        #form = peptides.get_protein_formula(seq, add_water = False)
-        #assert mass_start <= IsoSpecPy.Iso(formula = form).getTheoreticalAverageMass() <= mass_end
+    for hdr, seq in search(mass_start, mass_end):
         print(hdr)
         while len(seq) > 0:
+            # Inefficient, but it's only for testing...
             print(seq[:60])
             seq = seq[60:]
