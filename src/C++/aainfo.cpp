@@ -1,7 +1,7 @@
 #include <cstdint>
 #include <cstring>
 
-
+#pragma once
 
 uint32_t** setup_formulas()
 {
@@ -127,4 +127,28 @@ uint32_t** setup_formulas()
 
 uint32_t** formulas = setup_formulas();
 
+double mass(uint32_t formula[])
+{
+    return
 
+    12.010824250306753 * formula[0] +
+    1.007941468386931  * formula[1] +
+    14.00670519076357  * formula[2] +
+    15.999408717132628 * formula[3] +
+    32.064887818622296 * formula[4];
+}
+
+double* setup_masses()
+{
+    double* masses = new double[256];
+    for(size_t ii=0; ii<256; ii++)
+    {
+        if(formulas[ii] != nullptr)
+            masses[ii] = mass(formulas[ii]);
+        else
+            masses[ii] = 0.0;
+    }
+    return masses;
+}
+
+double* masses = setup_masses();

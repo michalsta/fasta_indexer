@@ -11,16 +11,6 @@
 
 
 
-double mass(uint32_t formula[])
-{
-    return 
-
-    12.010824250306753 * formula[0] +
-    1.007941468386931  * formula[1] + 
-    14.00670519076357  * formula[2] + 
-    15.999408717132628 * formula[3] +
-    32.064887818622296 * formula[4];
-}
 
 int real_main(int argc, char** argv)
 {
