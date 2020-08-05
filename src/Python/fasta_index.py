@@ -11,30 +11,30 @@ class FastaIndexer:
             raise Exception("Either all optional arguments must be provided, or none.")
 
         if idx_path is not None and treat_as_sorted is not None:
-            do_setup(fasta_path, idx_path)
+            self.do_setup(fasta_path, idx_path)
             self.sorted = treat_as_sorted
             return
 
         try:
-            do_setup(fasta_path + ".sorted")
+            self.do_setup(fasta_path + ".sorted")
         except (OSError, IOError) as e:
-            do_setup(fasta_path)
+            self.do_setup(fasta_path)
 
         self.sorted = self.fasta_path.endswith(".sorted")
 
 
 
     def do_setup(self, fasta_path, idx_path = None):
-        self.fasta_fh = open(sorted_fp)
+        self.fasta_fh = open(fasta_path)
         if idx_path is None:
             idx_path = fasta_path + ".idx"
         self.idx_fh = open(idx_path)
-        self.idx = mmap.mmap(index_fh.fileno(), 0, access = mmap.ACCESS_READ)
+        self.idx = mmap.mmap(self.idx_fh.fileno(), 0, access = mmap.ACCESS_READ)
         self.fasta_path = fasta_path
         self.idx_path = idx_path
         self.no_entries = len(self.idx) // 16
         self.min_mass = self.idkey_at(0)[0]
-        self.max_mass = self.idkey_at(no_entries-1)[0]
+        self.max_mass = self.idkey_at(self.no_entries-1)[0]
         try:
             self.idx.madvise(mmap.MADV_RANDOM)
         except Exception:
@@ -60,26 +60,27 @@ class FastaIndexer:
         if right_idx == left_idx:
             return
 
-        position = idkey_at(i)[1]
-        uniprot_fh.seek(position, os.SEEK_SET)
+        position = self.idkey_at(left_idx)[1]
+        self.fasta_fh.seek(position, os.SEEK_SET)
 
         for i in range(left_idx, right_idx):
-            position = idkey_at(i)[1]
-            if not self.treat_as_sorted:
-                uniprot_fh.seek(position, os.SEEK_SET)
-            header = uniprot_fh.readline()[:-1]
+            position = self.idkey_at(i)[1]
+            if not self.sorted:
+                self.fasta_fh.seek(position, os.SEEK_SET)
+            header = self.fasta_fh.readline()[:-1]
+            print("hdr:", header)
             assert header[0] == '>'
             seq = []
-            l = uniprot_fh.readline()[:-1]
+            l = self.fasta_fh.readline()[:-1]
             while len(l) > 0 and l[0] != '>':
                 seq.append(l)
-                l = uniprot_fh.readline()[:-1]
+                l = self.fasta_fh.readline()[:-1]
             seq = ''.join(seq)
             yield(header, seq)
         
 
 '''
-uniprot_fh = open("uniprot_trembl.fasta.sorted", "r")
+self.fasta_fh = open("uniprot_trembl.fasta.sorted", "r")
 index_fh = open("uniprot_trembl.fasta.sorted.idx", "rb")
 index = mmap.mmap(index_fh.fileno(), 0, access = mmap.ACCESS_READ)
 
@@ -113,14 +114,14 @@ def search(start_mass, end_mass):
 
     for i in range(left_idx, right_idx):
         position = idkey_at(i)[1]
-        uniprot_fh.seek(position, os.SEEK_SET)
-        header = uniprot_fh.readline()[:-1]
+        self.fasta_fh.seek(position, os.SEEK_SET)
+        header = self.fasta_fh.readline()[:-1]
         assert header[0] == '>'
         seq = []
-        l = uniprot_fh.readline()[:-1]
+        l = self.fasta_fh.readline()[:-1]
         while len(l) > 0 and l[0] != '>':
             seq.append(l)
-            l = uniprot_fh.readline()[:-1]
+            l = self.fasta_fh.readline()[:-1]
         seq = ''.join(seq)
         yield(header, seq)
 '''
@@ -132,7 +133,7 @@ if __name__ == "__main__":
     tol = float(sys.argv[3])
     mass_start = mid - tol
     mass_end = mid + tol
-    for hdr, seq in search(mass_start, mass_end):
+    for hdr, seq in FastaIndexer(fasta).search(mass_start, mass_end):
         print(hdr)
         while len(seq) > 0:
             # Inefficient, but it's only for testing...
