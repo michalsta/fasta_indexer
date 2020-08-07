@@ -62,69 +62,26 @@ class FastaIndexer:
 
         position = self.idkey_at(left_idx)[1]
         self.fasta_fh.seek(position, os.SEEK_SET)
+        assert self.fasta_fh.read(1) == '>'
 
         for i in range(left_idx, right_idx):
-            position = self.idkey_at(i)[1]
             if not self.sorted:
+                position = self.idkey_at(i)[1]
                 self.fasta_fh.seek(position, os.SEEK_SET)
+                assert self.fasta_fh.read() == '>'
             header = self.fasta_fh.readline()[:-1]
             print("hdr:", header)
-            assert header[0] == '>'
             seq = []
-            l = self.fasta_fh.readline()[:-1]
-            while len(l) > 0 and l[0] != '>':
-                seq.append(l)
-                l = self.fasta_fh.readline()[:-1]
+            c = self.fasta_fh.read(1)
+            while len(c) > 0 and c != '>':
+                if c != '\n':
+                    seq.append(c)
+                c = self.fasta_fh.read(1)
             seq = ''.join(seq)
             yield(header, seq)
+            if len(c) == 0:
+                return
         
-
-'''
-self.fasta_fh = open("uniprot_trembl.fasta.sorted", "r")
-index_fh = open("uniprot_trembl.fasta.sorted.idx", "rb")
-index = mmap.mmap(index_fh.fileno(), 0, access = mmap.ACCESS_READ)
-
-no_entries = len(index)//16
-#print(no_entries)
-
-def idkey_at(i):
-    return struct.unpack("dQ", index[i*16:i*16+16])
-
-min_mass = idkey_at(0)[0]
-max_mass = idkey_at(no_entries-1)[0]
-
-#print(idkey_at(2))
-
-class ArrWrap:
-    def __init__(self):
-        pass
-    def __getitem__(self, idx):
-        return idkey_at(idx)[0]
-    def __len__(self):
-        return no_entries
-
-def search(start_mass, end_mass):
-    x = ArrWrap()
-    start_mass = max(start_mass, min_mass)
-    end_mass = min(end_mass, max_mass)
-    left_idx = bisect.bisect_left(x, start_mass)
-    right_idx = bisect.bisect_right(x, end_mass)
-
-    print(str(right_idx - left_idx) + " results found, out of " + str(no_entries) + " in database.")
-
-    for i in range(left_idx, right_idx):
-        position = idkey_at(i)[1]
-        self.fasta_fh.seek(position, os.SEEK_SET)
-        header = self.fasta_fh.readline()[:-1]
-        assert header[0] == '>'
-        seq = []
-        l = self.fasta_fh.readline()[:-1]
-        while len(l) > 0 and l[0] != '>':
-            seq.append(l)
-            l = self.fasta_fh.readline()[:-1]
-        seq = ''.join(seq)
-        yield(header, seq)
-'''
 
 if __name__ == "__main__":
     import sys
