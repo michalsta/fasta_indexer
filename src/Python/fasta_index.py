@@ -7,12 +7,12 @@ import bisect
 class FastaIndexer:
     '''Allows fast retrieval of proteins in a given mass range.'''
 
-    def __init__(self, fasta_path, idx_path = None, treat_as_sorted = None):
-        '''Construct a fast indexer for retrieval of proteins from FASTA by mass.
+    def __init__(self, fasta_path, idx_path=None, treat_as_sorted=None):
+        '''Construct a fast indexer retrieving proteins from FASTA by mass.
 
-        The FASTA file should have been previously indexed and preferably sorted by
-        the mkndex or mkindex_nosort tools. The mass of the protein is defined as
-        the average mass over possible isotopic compositions, using Earth matter
+        The FASTA file should have been previously indexed and preferably sorted
+        by the mkndex or mkindex_nosort tools. The mass of the protein is defined
+        as the average mass over possible isotopic compositions, using Earth matter
         isotopic abundances.
 
         Note
@@ -49,8 +49,6 @@ class FastaIndexer:
 
         self.sorted = self.fasta_path.endswith(".sorted")
 
-
-
     def __getitem__(self, idx):
         '''Returns the file offset at which ith protein starts in FASTA'''
         return self._idkey_at(idx)[0]
@@ -79,8 +77,6 @@ class FastaIndexer:
         left_idx = bisect.bisect_left(self, start_mass)
         right_idx = bisect.bisect_right(self, end_mass)
 
-        print(str(right_idx - left_idx) + " results found, out of " + str(self.no_entries) + " in database.")
-
         if right_idx == left_idx:
             return
 
@@ -105,14 +101,13 @@ class FastaIndexer:
             yield(header, seq)
             if len(c) == 0:
                 return
-        
 
-    def _do_setup(self, fasta_path, idx_path = None):
+    def _do_setup(self, fasta_path, idx_path=None):
         self.fasta_fh = open(fasta_path)
         if idx_path is None:
             idx_path = fasta_path + ".idx"
         self.idx_fh = open(idx_path)
-        self.idx = mmap.mmap(self.idx_fh.fileno(), 0, access = mmap.ACCESS_READ)
+        self.idx = mmap.mmap(self.idx_fh.fileno(), 0, access=mmap.ACCESS_READ)
         self.fasta_path = fasta_path
         self.idx_path = idx_path
         self.no_entries = len(self.idx) // 16
@@ -123,9 +118,9 @@ class FastaIndexer:
         except Exception:
             pass
 
-
     def _idkey_at(self, i):
         return struct.unpack("dQ", self.idx[i*16:i*16+16])
+
 
 if __name__ == "__main__":
     import sys
