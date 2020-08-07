@@ -2,6 +2,8 @@
 
 #include <fstream>
 #include <exception>
+#include <string>
+#include <utility>
 
 #include "aainfo.hpp"
 
@@ -12,8 +14,11 @@ class Protein
     double _mass;
 
  public:
-    Protein() {};
-    void set(std::string&& _name, std::string&& _contents) { name = std::move(_name); contents = std::move(_contents); _mass = -1.0; };
+    Protein() {}
+
+    void set(std::string&& _name, std::string&& _contents)
+        { name = std::move(_name); contents = std::move(_contents); _mass = -1.0; }
+
     bool is_valid() const;
     std::string fasta() const;
     double mass();
@@ -26,11 +31,11 @@ class FASTA_Stream
     Protein p;
 
  public:
-    FASTA_Stream(const std::string& filename);
+    explicit FASTA_Stream(const std::string& filename);
     bool next();
     bool next_valid();
-    Protein& get() { return p; };
-    std::streampos offset() const { return _offset; };
+    Protein& get() { return p; }
+    std::streampos offset() const { return _offset; }
 };
 
 FASTA_Stream::FASTA_Stream(const std::string& filename)
@@ -73,7 +78,7 @@ bool FASTA_Stream::next()
 bool Protein::is_valid() const
 {
     for(const unsigned char& c : contents)
-        if(c != '\n' and formulas[c] == nullptr)
+        if(c != '\n' && formulas[c] == nullptr)
             return false;
     return true;
 }

@@ -20,7 +20,7 @@ int real_main(int argc, char** argv)
 {
     std::vector<Protein> proteins;
 
-    assert(argc==2);
+    assert(argc == 2);
 
     std::string infile(argv[1]);
     std::string sorted_filename = infile + ".sorted";

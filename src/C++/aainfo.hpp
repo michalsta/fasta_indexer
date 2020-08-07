@@ -141,7 +141,7 @@ double mass(uint32_t formula[])
 double* setup_masses()
 {
     double* masses = new double[256];
-    for(size_t ii=0; ii<256; ii++)
+    for(size_t ii = 0; ii < 256; ii++)
     {
         if(formulas[ii] != nullptr)
             masses[ii] = mass(formulas[ii]);

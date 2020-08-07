@@ -20,7 +20,7 @@ int real_main(int argc, char** argv)
 {
     std::vector<std::pair<double, uint64_t> > locations;
 
-    assert(argc==2);
+    assert(argc == 2);
 
     std::string infile(argv[1]);
     std::string sorted_filename = infile + ".sorted";
@@ -31,7 +31,7 @@ int real_main(int argc, char** argv)
     FASTA_Stream fasta(infile);
 
     while(fasta.next_valid())
-        locations.push_back(std::make_pair<double, uint64_t>(fasta.get().mass(), static_cast<uint64_t>(fasta.offset())));
+        locations.push_back(std::make_pair(fasta.get().mass(), static_cast<uint64_t>(fasta.offset())));
 
     std::sort(locations.begin(),
               locations.end(),
