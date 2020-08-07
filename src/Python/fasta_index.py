@@ -34,6 +34,10 @@ class FastaIndexer:
 
         '''
 
+        self.fasta_fh = None
+        self.idx_fh = None
+        self.idx = None
+
         if (idx_path is None) != (treat_as_sorted is None):
             raise Exception("Either all optional arguments must be provided, or none.")
 
@@ -120,6 +124,15 @@ class FastaIndexer:
 
     def _idkey_at(self, i):
         return struct.unpack("dQ", self.idx[i*16:i*16+16])
+
+    def __del__(self):
+        if self.idx is not None:
+            self.idx.close()
+        if self.fasta_fh is not None:
+            self.fasta_fh.close()
+        if self.idx_fh is not None:
+            self.idx_fh.close()
+
 
 
 if __name__ == "__main__":
