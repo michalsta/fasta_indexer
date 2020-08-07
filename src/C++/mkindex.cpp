@@ -3,7 +3,7 @@
 #include <cassert>
 #include <fstream>
 
-#include "fasta_stream.cpp"
+#include "fasta_stream.hpp"
 
 
 

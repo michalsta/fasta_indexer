@@ -1,7 +1,9 @@
+#pragma once
+
 #include <fstream>
 #include <exception>
 
-#include "aainfo.cpp"
+#include "aainfo.hpp"
 
 class Protein
 {

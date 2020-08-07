@@ -1,7 +1,7 @@
+#pragma once
+
 #include <cstdint>
 #include <cstring>
-
-#pragma once
 
 uint32_t** setup_formulas()
 {
