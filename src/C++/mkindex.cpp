@@ -16,13 +16,11 @@ std::ofstream open_outf(const std::string& filename, std::ios_base::openmode add
     return res;
 }
 
-int real_main(int argc, char** argv)
+int mkindex_real_main(const char* path)
 {
     std::vector<Protein> proteins;
 
-    assert(argc == 2);
-
-    std::string infile(argv[1]);
+    std::string infile(path);
     std::string sorted_filename = infile + ".sorted";
     std::string index_filename = sorted_filename + ".idx";
 
@@ -60,14 +58,24 @@ int real_main(int argc, char** argv)
 }
 
 
-int main(int argc, char** argv)
+int mkindex_main(const char* path)
 {
     try
     {
-        return real_main(argc, argv);
+        return mkindex_real_main(path);
     }
-    catch (const std::system_error& e) {
+    catch (const std::system_error& e)
+    {
         perror(nullptr);
         throw;
     }
 }
+
+
+#ifndef FASTA_INDEXER_OMIT_MAIN
+int main(int argc, char** argv)
+{
+    assert(argc == 2);
+    return mkindex_main(argv[1]);
+}
+#endif
